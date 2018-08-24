@@ -1,7 +1,8 @@
 const bookRoutes = {
   // Book Api
-  'POST /search': 'BookController.search',
-  'POST /lookup': 'BookController.lookup'
+  'POST /add': 'BookController.addBook',
+  'PUT /move': 'BookController.moveBookToShelf',
+  'POST /shelf/:shelfName': 'BookController.getBookShelf'
 }
 
 module.exports = bookRoutes

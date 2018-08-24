@@ -1,44 +1,49 @@
-const {defaultOptions} = require('../config')
-const books = require('google-books-search')
+const Book = require('../models/bookModel')
 const BookController = () => {
-  this.searchType = ['books', 'magazines']
-  this.orderTypes = ['relevance', 'newest']
-  this.fieldTypes = ['title', 'author', 'publisher', 'subject', 'isbn']
-  this.maxLimit = 40
-  /**
-   * Get books from user search request
-   */
-  const search = (req, res) => {
-    const {query, options} = req.body
-    if (!query) return res.status(400).json({error: 'Please fill out query field.'})
-    if (options) {
-      if (options.limit > this.maxLimit) return res.status(400).json({error: 'Max limit of results is 40. Please fix options.'})
-      if (options.field && !this.fieldTypes.includes(options.field)) return res.status(400).json({error: 'Please request a valid field type.'})
-      if (options.orderBy && !this.orderTypes.includes(options.orderBy)) return res.status(400).json({error: 'Please request a valid orderBy type.'})
-      if (options.resultType && !this.searchType.includes(options.searchType)) return res.status(400).json({error: 'Please request a valid search type.'})
+  const addBook = async (req, res) => {
+    const {volumeID, token, shelf} = req.body
+    try {
+      let bookToAdd = await Book().addBook({volumeID, token, shelf})
+      if (bookToAdd) {
+        return res.status(200).json({success: 'Book Added.'})
+      }
+    } catch (error) {
+      return res.status(500).json({error: 'Internal Error!'})
     }
-    books.search(query, options || defaultOptions, function (error, results) {
-      if (error) {
-        return res.status(500).json({error: 'Internal Error!'})
-      }
-      return res.status(200).json({books: results})
-    })
   }
+  const deleteBook = async (req, res) => {
+    const {volumeID, token} = req.body
 
-  /**
-   * Get single book details
-   */
-  const lookup = (req, res) => {
-    const {volumeID} = req.body
-    if (!volumeID) return res.status(400).json({error: 'Please provide a volumeID field'})
-    books.lookup(volumeID, defaultOptions.key, function (error, results) {
-      if (error) {
-        return res.status(400).json({error})
+    try {
+      let didDelete = Book().deleteBook({volumeID, token})
+      if (didDelete) {
+        return res.status(200).json({success: 'Book deleted.'})
       }
-      return res.status(200).json({book: results})
-    })
+    } catch (error) {
+      return res.status(500).json({error: 'Internal Error!'})
+    }
   }
-  return {search, lookup}
+  const getBookShelf = async (req, res) => {
+    const {token, shelf} = req.body
+
+    try {
+
+    } catch (error) {
+      return res.status(500).json({error: 'Internal Error!'})
+    }
+  }
+  const moveBookToShelf = async (req, res) => {
+    const {volumeID, shelf, token} = req.body
+    try {
+      let moveBook = await Book().moveBookToShelf({shelf, token, volumeID})
+      if (moveBook) {
+        return res.status(200).json({success: 'Book moved.'})
+      }
+    } catch (error) {
+      return res.status(500).json({error: 'Internal Error!'})
+    }
+  }
+  return {addBook, deleteBook, getBookShelf, moveBookToShelf}
 }
 
 module.exports = BookController
