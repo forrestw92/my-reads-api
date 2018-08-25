@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const rateLimit = require('express-rate-limit')
 
 const mapRoutes = require('express-routes-mapper')
-const { routes } = require('./config')
+const routes = require('./config/routes')
 const auth = require('./policies/auth.policy')
 const bookRouter = mapRoutes(
   routes.bookRoutes,
