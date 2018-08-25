@@ -5,14 +5,14 @@ const rateLimit = require('express-rate-limit')
 
 const mapRoutes = require('express-routes-mapper')
 const { routes } = require('./config')
-
-const searchRouter = mapRoutes(
+const auth = require('./policies/auth.policy')
+const bookRouter = mapRoutes(
   routes.bookRoutes,
   '/controllers/'
 )
 
-const userRouter = mapRoutes(
-  routes.userRoutes,
+const tokenRouter = mapRoutes(
+  routes.tokenRoutes,
   '/controllers/'
 )
 
@@ -33,7 +33,9 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 
 app.use(limiter)
-app.use('/books', searchRouter)
-app.use('/page', userRouter)
+app.all('/books/*', (req, res, next) => auth(req, res, next))
+
+app.use('/books', bookRouter)
+app.use('/token', tokenRouter)
 
 module.exports = app

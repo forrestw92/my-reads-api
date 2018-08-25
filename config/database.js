@@ -1,6 +1,13 @@
 const mysql = require('mysql2/promise')
 const {mysqlConfig} = require('../config')
 const db = mysql.createPool(mysqlConfig)
+
+/**
+ * Shortens mysql query
+ * @param sql
+ * @param args
+ * @returns {Promise<PromiseLike<*[] | never>>}
+ */
 const query = async (sql, ...args) => {
   [...args].map(arg => mysql.escape(arg))
   return db.getConnection()
@@ -10,10 +17,14 @@ const query = async (sql, ...args) => {
       return res
     }).then(([rows]) => {
       return rows
-    }).catch(error => {
-      return error
     })
 }
+/**
+ * Shortens mysql execute
+ * @param sql
+ * @param args
+ * @returns {Promise<PromiseLike<T | never>>}
+ */
 const execute = async (sql, ...args) => {
   [...args].map(arg => mysql.escape(arg))
   return db.getConnection()
@@ -23,9 +34,6 @@ const execute = async (sql, ...args) => {
       return res
     }).then(results => {
       return results
-    }).catch(error => {
-      console.log(error)
-      return error
     })
 }
 module.exports = {db, execute, query}

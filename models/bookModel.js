@@ -27,6 +27,10 @@ const bookModel = () => {
         return error
       })
   }
+
+  // todo:: Generate jsDoc
+  const getBook = async (volumeID) => {
+  }
   /**
      * Moves book to new shelf
      * @param details - shelf,token,volumeID

@@ -6,8 +6,11 @@ const SearchController = () => {
   this.fieldTypes = ['title', 'author', 'publisher', 'subject', 'isbn']
   this.maxLimit = 40
   /**
-   * Get books from user search request
-   */
+     * Gets results from search query
+     * @param req
+     * @param res
+     * @returns {*|Promise<any>}
+     */
   const search = (req, res) => {
     const {query, options} = req.body
     if (!query) return res.status(400).json({error: 'Please fill out query field.'})
@@ -26,8 +29,11 @@ const SearchController = () => {
   }
 
   /**
-   * Get single book details
-   */
+     * Looks up single query
+     * @param req
+     * @param res
+     * @returns {*|Promise<any>}
+     */
   const lookup = (req, res) => {
     const {volumeID} = req.body
     if (!volumeID) return res.status(400).json({error: 'Please provide a volumeID field'})

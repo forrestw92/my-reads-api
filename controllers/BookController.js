@@ -1,7 +1,14 @@
 const Book = require('../models/bookModel')
 const BookController = () => {
+  /**
+     * Adds book to shelf
+     * @req
+     * @param res
+     * @returns {Promise<*|Promise<any>>}
+     */
   const addBook = async (req, res) => {
-    const {volumeID, token, shelf} = req.body
+    const {volumeID, shelf} = req.body
+    const token = req.token
     try {
       let bookToAdd = await Book().addBook({volumeID, token, shelf})
       if (bookToAdd) {
@@ -11,9 +18,15 @@ const BookController = () => {
       return res.status(500).json({error: 'Internal Error!'})
     }
   }
+  /**
+     * Deletes book
+     * @param req
+     * @param res
+     * @returns {Promise<*|Promise<any>>}
+     */
   const deleteBook = async (req, res) => {
-    const {volumeID, token} = req.body
-
+    const {volumeID} = req.body
+    const token = req.token
     try {
       let didDelete = Book().deleteBook({volumeID, token})
       if (didDelete) {
@@ -23,8 +36,10 @@ const BookController = () => {
       return res.status(500).json({error: 'Internal Error!'})
     }
   }
+  // TODO:: Generate documentation
   const getBookShelf = async (req, res) => {
-    const {token, shelf} = req.body
+    const {shelf} = req.body
+    const token = req.token
 
     try {
 
@@ -32,8 +47,15 @@ const BookController = () => {
       return res.status(500).json({error: 'Internal Error!'})
     }
   }
+  /**
+     * Moves book from shelf to another
+     * @param req
+     * @param res
+     * @returns {Promise<*|Promise<any>>}
+     */
   const moveBookToShelf = async (req, res) => {
-    const {volumeID, shelf, token} = req.body
+    const {volumeID, shelf} = req.body
+    const token = req.token
     try {
       let moveBook = await Book().moveBookToShelf({shelf, token, volumeID})
       if (moveBook) {
