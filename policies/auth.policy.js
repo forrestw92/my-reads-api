@@ -1,4 +1,4 @@
-const tokenModel = require('../models/tokenModel')
+const TokenModel = require('../models/TokenModel')
 /**
  * Checks for user authorization token
  * @param req
@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ error: 'Format for Authorization: [token]' })
   }
 
-  return tokenModel.validateToken(tokenToVerify).then(isValid => {
+  return TokenModel.validateToken(tokenToVerify).then(isValid => {
     if (isValid) {
       req.token = tokenToVerify
     } else {

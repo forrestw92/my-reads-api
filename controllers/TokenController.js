@@ -1,44 +1,41 @@
-const Token = require('../models/tokenModel')
-const TokenController = () => {
-    /**
+const TokenModel = require('../models/TokenModel')
+class TokenController {
+  /**
      * Adds new or gets new token for user authentication
      * @param req
      * @param res
      * @returns {Promise<*|Promise<any>>}
      */
-  const getNew = async (req, res) => {
+  async getNew (req, res) {
     let {token} = req.body
-    if (token) {
+    try {
+      // Tries to add user token or fails and server generated token is provided
+      let didAdd = await TokenModel.addToken(token)
+      if (didAdd) {
+        return res.status(201).json({success: "Token created. Don't forget it or you will loose progress."})
+      }
+    } catch (error) {
       try {
-        let didAdd = await Token.addToken(token)
-        if (didAdd) {
-          return res.status(201).json({success: "Token created. Don't forget it or you will loose progress."})
-        }
-      } catch (error) {
-        try {
-          let trys = 0
-          let maxTrys = 50
-          let token = Math.random().toString(36).substr(-8)
+        // If user did not provide a token or user token is taken server generated token will be provided
+        let tries = 0
+        let maxTrys = 50
+        let token = Math.random().toString(36).substr(-8)
+        let didAdd = await TokenModel.addToken(token)
 
-          let didAdd = await Token.addToken(token)
-
-          while (!didAdd) {
-            token = Math.random().toString(36).substr(-8)
-            didAdd = await Token.addToken(token)
-            if (trys > maxTrys) {
-              return res.status(500).json({error: 'Could not generate token. Please try again.'})
-            }
-            trys++
+        while (!didAdd) {
+          token = Math.random().toString(36).substr(-8)
+          didAdd = await TokenModel.addToken(token)
+          if (tries > maxTrys) {
+            return res.status(500).json({error: 'Could not generate token. Please try again.'})
           }
-          return res.status(201).json({success: "Token created. Don't forget it or you will loose progress.", token})
-        } catch (error) {
-          return res.status(500).json({error: 'Internal Error!'})
+          tries++
         }
+        return res.status(201).json({success: "Token created. Don't forget it or you will loose progress.", token})
+      } catch (error) {
+        return res.status(500).json({error: 'Internal Error!'})
       }
     }
   }
-
-  return {getNew}
 }
 
 module.exports = TokenController

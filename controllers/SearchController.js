@@ -1,17 +1,19 @@
 const {defaultOptions} = require('../config')
 const books = require('google-books-search')
-const SearchController = () => {
-  this.searchType = ['books', 'magazines']
-  this.orderTypes = ['relevance', 'newest']
-  this.fieldTypes = ['title', 'author', 'publisher', 'subject', 'isbn']
-  this.maxLimit = 40
+class SearchController {
+  constructor () {
+    this.searchType = ['books', 'magazines']
+    this.orderTypes = ['relevance', 'newest']
+    this.fieldTypes = ['title', 'author', 'publisher', 'subject', 'isbn']
+    this.maxLimit = 40
+  }
   /**
      * Gets results from search query
      * @param req
      * @param res
      * @returns {*|Promise<any>}
      */
-  const search = (req, res) => {
+  async search (req, res) {
     const {query, options} = req.body
     if (!query) return res.status(400).json({error: 'Please fill out query field.'})
     if (options) {
@@ -24,6 +26,9 @@ const SearchController = () => {
       if (error) {
         return res.status(500).json({error: 'Internal Error!'})
       }
+      if (results.length === 0) {
+        return res.status(400).json({error: 'No results found with that query. Please try again.'})
+      }
       return res.status(200).json({books: results})
     })
   }
@@ -34,7 +39,7 @@ const SearchController = () => {
      * @param res
      * @returns {*|Promise<any>}
      */
-  const lookup = (req, res) => {
+  async lookup (req, res) {
     const {volumeID} = req.body
     if (!volumeID) return res.status(400).json({error: 'Please provide a volumeID field'})
     books.lookup(volumeID, defaultOptions.key, function (error, results) {
@@ -44,7 +49,6 @@ const SearchController = () => {
       return res.status(200).json({book: results})
     })
   }
-  return {search, lookup}
 }
 
 module.exports = SearchController

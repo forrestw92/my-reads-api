@@ -1,6 +1,6 @@
-const { query, execute} = require('../config/database')
+const {query, execute} = require('../config/database')
 
-class tokenModel {
+class TokenModel {
   /**
      * Adds token to table for authorization
      * @param token
@@ -28,4 +28,4 @@ class tokenModel {
   }
 }
 
-module.exports = tokenModel
+module.exports = TokenModel

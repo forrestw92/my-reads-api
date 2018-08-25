@@ -1,16 +1,25 @@
-const Book = require('../models/bookModel')
-const BookController = () => {
+const Book = require('../models/BookModel')
+const books = require('google-books-search')
+const {defaultOptions} = require('../config/')
+class BookController {
   /**
      * Adds book to shelf
      * @req
      * @param res
      * @returns {Promise<*|Promise<any>>}
      */
-  const addBook = async (req, res) => {
+  async addBook (req, res) {
     const {volumeID, shelf} = req.body
     const token = req.token
+    let bookDetails = ''
+    books.lookup(volumeID, defaultOptions.key, function (error, result) {
+      if (error) {
+        return res.status(400).json({error})
+      }
+      bookDetails = result
+    })
     try {
-      let bookToAdd = await Book().addBook({volumeID, token, shelf})
+      let bookToAdd = await Book.addBook({volumeID: bookDetails.volumeID, token, shelf})
       if (bookToAdd) {
         return res.status(200).json({success: 'Book Added.'})
       }
@@ -24,11 +33,11 @@ const BookController = () => {
      * @param res
      * @returns {Promise<*|Promise<any>>}
      */
-  const deleteBook = async (req, res) => {
+  async deleteBook (req, res) {
     const {volumeID} = req.body
     const token = req.token
     try {
-      let didDelete = Book().deleteBook({volumeID, token})
+      let didDelete = Book.deleteBook({volumeID, token})
       if (didDelete) {
         return res.status(200).json({success: 'Book deleted.'})
       }
@@ -37,7 +46,7 @@ const BookController = () => {
     }
   }
   // TODO:: Generate documentation
-  const getBookShelf = async (req, res) => {
+  async getBookShelf (req, res) {
     const {shelf} = req.body
     const token = req.token
 
@@ -53,11 +62,11 @@ const BookController = () => {
      * @param res
      * @returns {Promise<*|Promise<any>>}
      */
-  const moveBookToShelf = async (req, res) => {
+  async moveBookToShelf (req, res) {
     const {volumeID, shelf} = req.body
     const token = req.token
     try {
-      let moveBook = await Book().moveBookToShelf({shelf, token, volumeID})
+      let moveBook = await Book.moveBookToShelf({shelf, token, volumeID})
       if (moveBook) {
         return res.status(200).json({success: 'Book moved.'})
       }
@@ -65,7 +74,6 @@ const BookController = () => {
       return res.status(500).json({error: 'Internal Error!'})
     }
   }
-  return {addBook, deleteBook, getBookShelf, moveBookToShelf}
 }
 
 module.exports = BookController
