@@ -12,7 +12,7 @@ class TokenController {
       // Tries to add user token or fails and server generated token is provided
       let didAdd = await TokenModel.addToken(token)
       if (didAdd) {
-        return res.status(201).json({success: "Token created. Don't forget it or you will loose progress."})
+        return res.status(201).json({success: 'TOKEN_CREATED'})
       }
     } catch (error) {
       try {
@@ -26,13 +26,13 @@ class TokenController {
           token = Math.random().toString(36).substr(-8)
           didAdd = await TokenModel.addToken(token)
           if (tries > maxTrys) {
-            return res.status(500).json({error: 'Could not generate token. Please try again.'})
+            return res.status(500).json({error: 'TOKEN_GEN_ERROR'})
           }
           tries++
         }
-        return res.status(201).json({success: "Token created. Don't forget it or you will loose progress.", token})
+        return res.status(201).json({success: 'TOKEN_CREATED', token})
       } catch (error) {
-        return res.status(500).json({error: 'Internal Error!'})
+        return res.status(500).json({error: 'INTERNAL_ERROR'})
       }
     }
   }

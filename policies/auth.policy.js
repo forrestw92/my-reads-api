@@ -14,17 +14,17 @@ module.exports = (req, res, next) => {
     tokenToVerify = req.body.token
     delete req.query.token
   } else {
-    return res.status(401).json({ error: 'Format for Authorization: [token]' })
+    return res.status(401).json({ error: 'NO_TOKEN_FOUND' })
   }
 
   return TokenModel.validateToken(tokenToVerify).then(isValid => {
     if (isValid) {
       req.token = tokenToVerify
     } else {
-      return res.status(400).json({error: 'Token invalid or deleted. Please request a token.'})
+      return res.status(400).json({error: 'INVALID_TOKEN'})
     }
     return next()
   }).catch(() => {
-    return res.status(500).json({error: 'Internal Error!'})
+    return res.status(500).json({error: 'INTERNAL_ERROR'})
   })
 }

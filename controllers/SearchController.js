@@ -1,8 +1,9 @@
 const {defaultOptions} = require('../config')
-const books = require('google-books-search')
+const books = require('../api')
+const Book = require('../models/BookModel')
 class SearchController {
   constructor () {
-    this.searchType = ['books', 'magazines']
+    this.searchType = ['books', 'magazines', 'all']
     this.orderTypes = ['relevance', 'newest']
     this.fieldTypes = ['title', 'author', 'publisher', 'subject', 'isbn']
     this.maxLimit = 40
@@ -15,22 +16,36 @@ class SearchController {
      */
   async search (req, res) {
     const {query, options} = req.body
-    if (!query) return res.status(400).json({error: 'Please fill out query field.'})
+    const token = req.token
+    if (!query) return res.status(400).json({error: 'INVALID_QUERY'})
     if (options) {
-      if (options.limit > this.maxLimit) return res.status(400).json({error: 'Max limit of results is 40. Please fix options.'})
-      if (options.field && !this.fieldTypes.includes(options.field)) return res.status(400).json({error: 'Please request a valid field type.'})
-      if (options.orderBy && !this.orderTypes.includes(options.orderBy)) return res.status(400).json({error: 'Please request a valid orderBy type.'})
-      if (options.resultType && !this.searchType.includes(options.searchType)) return res.status(400).json({error: 'Please request a valid search type.'})
+      if (options.limit && !Number.isInteger(options.limit)) return res.status(400).json({error: 'LIMIT_NOT_VALID'})
+      if (options.startIndex && !Number.isInteger(options.startIndex)) return res.status(400).json({error: 'INDEX_NOT_VALID'})
+      if (options.limit < 1) return res.status(400).json({error: 'MIN_LIMIT_1'})
+      if (options.limit > this.maxLimit) return res.status(400).json({error: 'MAX_LIMIT_40'})
+      if (options.startIndex < 1) return res.status(400).json({error: 'MIN_LIMIT_1'})
+
+      if (options.field && !this.fieldTypes.includes(options.field)) return res.status(400).json({error: 'INVALID_FIELD_TYPE'})
+      if (options.orderBy && !this.orderTypes.includes(options.orderBy)) return res.status(400).json({error: 'INVALID_ORDER_BY_TYPE'})
+      if (options.resultType && !this.searchType.includes(options.searchType)) return res.status(400).json({error: 'INVALID_RESULT_TYPE'})
     }
-    books.search(query, options || defaultOptions, function (error, results) {
-      if (error) {
-        return res.status(500).json({error: 'Internal Error!'})
+    try {
+      let bookResults = await books.search(query, options || defaultOptions)
+      if (bookResults.length === 0) {
+        return res.status(400).json({error: 'NO_RESULTS'})
       }
-      if (results.length === 0) {
-        return res.status(400).json({error: 'No results found with that query. Please try again.'})
-      }
-      return res.status(200).json({books: results})
-    })
+
+      let resultIDS = bookResults.map(result => { return result.id })
+      let userBooks = await Book.getUserBooksByVolumeIDS(token, resultIDS)
+      let newBooks = bookResults.map(result => {
+        if (userBooks.find(book => book.volumeID === result.id) === undefined) {
+          return result
+        }
+      })
+      return res.status(200).json({books: newBooks.filter(book => book)})
+    } catch (error) {
+      return res.status(500).json({error: 'INTERNAL_ERROR'})
+    }
   }
 
   /**
@@ -41,12 +56,11 @@ class SearchController {
      */
   async lookup (req, res) {
     const {volumeID} = req.body
-    if (!volumeID) return res.status(400).json({error: 'Please provide a volumeID field'})
-    books.lookup(volumeID, defaultOptions.key, function (error, results) {
-      if (error) {
-        return res.status(400).json({error})
-      }
+    if (!volumeID) return res.status(400).json({error: 'INVALID_VOLUMEID'})
+    await books.lookup(volumeID, defaultOptions.key).then(results => {
       return res.status(200).json({book: results})
+    }).catch(error => {
+      return res.status(400).json({error})
     })
   }
 }

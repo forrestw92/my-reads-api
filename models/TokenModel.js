@@ -3,7 +3,7 @@ const {query, execute} = require('../config/database')
 class TokenModel {
   /**
      * Adds token to table for authorization
-     * @param token
+     * @param {String} token
      * @returns {Promise<T | never>}
      */
   static async addToken (token) {
@@ -15,7 +15,7 @@ class TokenModel {
 
   /**
      * Checks if token is valid in table
-     * @param token
+     * @param {String} token
      * @returns {Promise<boolean | never>}
      */
   static async validateToken (token) {
