@@ -199,7 +199,25 @@ UNION ALL
         return result[0].affectedRows === 1
       })
   }
-
+    /**
+     * Adds default books when token is generated
+     * @param {String} token
+     * @returns {Promise<boolean | never>}
+     */
+    static async addBooksToShelf (token) {
+        return execute(`INSERT INTO my_books ( volumeID,token,shelf,createdAt) VALUES ?`, [
+            ['nggnmAEACAAJ', token, 'currentlyReading', new Date()],
+            ['sJf1vQAACAAJ', token, 'currentlyReading', new Date()],
+            ['evuwdDLfAyYC', token, 'wantToRead', new Date()],
+            ['74XNzF_al3MC', token, 'wantToRead', new Date()],
+            ['jAUODAAAQBAJ', token, 'read', new Date()],
+            ['IOejDAAAQBAJ', token, 'read', new Date()],
+            ['1wy49i', token, 'read', new Date()]])
+            .then(result => {
+                console.log(result)
+                return result[0].affectedRows === 1
+            }).catch(err => console.log(err))
+    }
   /**
      * Moves book to new shelf
      * @param {String} shelf
