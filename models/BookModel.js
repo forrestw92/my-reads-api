@@ -86,10 +86,10 @@ SELECT b.*,
        m.*, 
        (SELECT r.rating 
         FROM   book_ratings r 
-        WHERE  r.volumeid = b.volumeid) AS userRating 
+        WHERE  r.volumeID = b.volumeID) AS userRating 
 FROM   my_books m 
        INNER JOIN books AS b 
-               ON m.volumeid = b.volumeid 
+               ON m.volumeID = b.volumeID 
 WHERE  m.shelf = ? 
        AND m.token = ? 
 LIMIT  10 offset ? `, shelf, token, offset)
@@ -112,39 +112,39 @@ LIMIT  10 offset ? `, shelf, token, offset)
         m.shelf, 
         (SELECT r.rating 
          FROM   book_ratings r 
-         WHERE  r.volumeid = b.volumeid) AS userRating 
+         WHERE  r.volumeID = b.volumeID) AS userRating 
  FROM   books b 
         INNER JOIN my_books AS m 
-                ON b.volumeid = m.volumeid 
+                ON b.volumeID = m.volumeID 
  WHERE  token =? 
         AND m.shelf = 'read' 
- ORDER  BY m.updatedat DESC 
+ ORDER  BY m.updatedAt DESC 
  LIMIT  6) 
 UNION ALL 
 (SELECT b.*, 
         m.shelf, 
         (SELECT r.rating 
          FROM   book_ratings r 
-         WHERE  r.volumeid = b.volumeid) AS userRating 
+         WHERE  r.volumeID = b.volumeID) AS userRating 
  FROM   books b 
         INNER JOIN my_books AS m 
-                ON b.volumeid = m.volumeid 
+                ON b.volumeID = m.volumeID 
  WHERE  token =? 
         AND m.shelf = 'currentlyReading' 
- ORDER  BY m.updatedat DESC 
+ ORDER  BY m.updatedAt DESC 
  LIMIT  6) 
 UNION ALL 
 (SELECT b.*, 
         m.shelf, 
         (SELECT r.rating 
          FROM   book_ratings r 
-         WHERE  r.volumeid = b.volumeid) AS userRating 
+         WHERE  r.volumeID = b.volumeID) AS userRating 
  FROM   books b 
         INNER JOIN my_books AS m 
-                ON b.volumeid = m.volumeid 
+                ON b.volumeID = m.volumeID 
  WHERE  token =? 
         AND m.shelf = 'wantToRead' 
- ORDER  BY m.updatedat DESC 
+ ORDER  BY m.updatedAt DESC 
  LIMIT  6) `, token, token, token)
       .then(rows => {
         rows = rows.map(row => {
@@ -199,25 +199,25 @@ UNION ALL
         return result[0].affectedRows === 1
       })
   }
-    /**
+  /**
      * Adds default books when token is generated
      * @param {String} token
      * @returns {Promise<boolean | never>}
      */
-    static async addBooksToShelf (token) {
-        return execute(`INSERT INTO my_books ( volumeID,token,shelf,createdAt) VALUES ?`, [
-            ['nggnmAEACAAJ', token, 'currentlyReading', new Date()],
-            ['sJf1vQAACAAJ', token, 'currentlyReading', new Date()],
-            ['evuwdDLfAyYC', token, 'wantToRead', new Date()],
-            ['74XNzF_al3MC', token, 'wantToRead', new Date()],
-            ['jAUODAAAQBAJ', token, 'read', new Date()],
-            ['IOejDAAAQBAJ', token, 'read', new Date()],
-            ['1wy49i', token, 'read', new Date()]])
-            .then(result => {
-                console.log(result)
-                return result[0].affectedRows === 1
-            }).catch(err => console.log(err))
-    }
+  static async addBooksToShelf (token) {
+    return execute(`INSERT INTO my_books ( volumeID,token,shelf,createdAt) VALUES ?`, [
+      ['nggnmAEACAAJ', token, 'currentlyReading', new Date()],
+      ['sJf1vQAACAAJ', token, 'currentlyReading', new Date()],
+      ['evuwdDLfAyYC', token, 'wantToRead', new Date()],
+      ['74XNzF_al3MC', token, 'wantToRead', new Date()],
+      ['jAUODAAAQBAJ', token, 'read', new Date()],
+      ['IOejDAAAQBAJ', token, 'read', new Date()],
+      ['1wy49i', token, 'read', new Date()]])
+      .then(result => {
+        console.log(result)
+        return result[0].affectedRows === 1
+      }).catch(err => console.log(err))
+  }
   /**
      * Moves book to new shelf
      * @param {String} shelf
