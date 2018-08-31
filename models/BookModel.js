@@ -95,7 +95,7 @@ WHERE  m.shelf = ?
 LIMIT  10 offset ? `, shelf, token, offset)
       .then(rows => {
         rows = rows.map(row => {
-          row.userRating = row.userRating || 0
+          row.userRating = row.userRating || -1
           row.categories = JSON.parse(row.categories)
           row.authors = JSON.parse(row.authors)
           row.images = JSON.parse(row.images)
@@ -112,7 +112,7 @@ LIMIT  10 offset ? `, shelf, token, offset)
         m.shelf, 
         (SELECT r.rating 
          FROM   book_ratings r 
-         WHERE  r.volumeID = b.volumeID) AS userRating 
+         WHERE  r.volumeID = b.volumeID AND token=?) AS userRating 
  FROM   books b 
         INNER JOIN my_books AS m 
                 ON b.volumeID = m.volumeID 
@@ -125,7 +125,7 @@ UNION ALL
         m.shelf, 
         (SELECT r.rating 
          FROM   book_ratings r 
-         WHERE  r.volumeID = b.volumeID) AS userRating 
+         WHERE  r.volumeID = b.volumeID AND token=?) AS userRating 
  FROM   books b 
         INNER JOIN my_books AS m 
                 ON b.volumeID = m.volumeID 
@@ -138,17 +138,17 @@ UNION ALL
         m.shelf, 
         (SELECT r.rating 
          FROM   book_ratings r 
-         WHERE  r.volumeID = b.volumeID) AS userRating 
+         WHERE  r.volumeID = b.volumeID AND token=?) AS userRating 
  FROM   books b 
         INNER JOIN my_books AS m 
                 ON b.volumeID = m.volumeID 
  WHERE  token =? 
         AND m.shelf = 'wantToRead' 
  ORDER  BY m.updatedAt DESC 
- LIMIT  6) `, token, token, token)
+ LIMIT  6) `, token, token, token,token, token, token)
       .then(rows => {
         rows = rows.map(row => {
-          row.userRating = row.userRating || 0
+          row.userRating = row.userRating || -1
           row.categories = JSON.parse(row.categories)
           row.authors = JSON.parse(row.authors)
           row.images = JSON.parse(row.images)
